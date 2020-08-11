@@ -1,0 +1,266 @@
+ <!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Práctica Final Módulo V - BecaSoft UTECO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+    <style>
+        .border-tabla
+        {
+           border: 1px solid blue;
+        }
+       
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div>
+            <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+            <a class="navbar-brand" href="#">Amortizacion de Prestamo</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav">
+                <li class="nav-item active">
+                  <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                </li>
+              </ul>
+            </div>
+        </nav>
+        </div>
+    </header>
+
+    <div class="col-12">
+        <div class="form-group">
+        <h1 class="text-center mt-3">Simulador de Prestamo </h1>
+    </div>
+    </div>
+
+    <div class="container col-6">
+        <div class="form-group">
+            <table class="table">
+                <tr>
+                    <td>Monto</td>
+                    <td style="width:200px; ">
+                        <input class="form-control" type="text"  id="monto" />
+                        <!-- TODO: Darle formato numérico con jquery input mask -->
+                    </td>
+                </tr>
+                <tr>
+                    <td>Tasa</td>
+                    <td>
+                        <input class="form-control" type="text" id="tasa" />
+                        <!-- TODO: Darle formato numérico con jquery input mask -->
+                    </td>
+                </tr>
+                <tr>
+                    <td>Plazo en Meses</td>
+                    <td>
+                        <input class="form-control" type="text" id="plazo" />
+                        <!-- TODO: Darle formato numérico con jquery input mask -->
+                    </td>
+                </tr>
+                <tr>
+                    <td>Fecha</td>
+                    <td>
+                        <input class="form-control" type="date" id="fecha" />
+                    </td>
+                </tr>
+                <tr>
+                    <td>Cuota Mensual</td>
+                    <td>
+                        <input class="form-control" type="text" id="cuotaMensual" disabled="disabled" />
+            
+                    </td>
+                </tr>
+                <tr>                    
+                        <td colspan="2">
+                            <input class="btn btn-outline-primary" type="button" id="btnCuota" value="Calcular Cuota" onclick="calcularCuota()" />
+                            &nbsp;&nbsp;
+                            <input class="btn btn-outline-primary" type="button" id="btnTabla" value="Generar Tabla" onclick="generarTabla()" />
+                        </td>                    
+                </tr>
+            </table>
+        </div>
+    </div>
+    <hr>
+    <br>
+
+    <div class="container col-6">
+        <div class="form-group">
+            <table class="table table-striped" id="amortizacion">
+                <thead>
+                    <tr>
+                        <td >Cuota No.</td>
+                        <td >Fecha</td>
+                        <td >Cuota</td>
+                        <td >Interés</td>
+                        <td >Capital</td>
+                        <td >Balance</td>
+                    </tr>
+                    <tbody id="tableBody">
+                        
+                    </tbody>
+                </thead>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        //Las variables globales
+var cuota = 0;
+var interes = 0;
+var capital = 0;
+var balance = 0;
+var tasa = 0;
+var monto = 0;
+
+//Cambié el nombre de las variables globales porque me confundian al decir todas "cuota" al final :)
+
+function calcularCuota(){
+    
+    //TODO: calcular la cuota mensual fija para el préstamo y asignar el resultado al input id="cuotaMensual"
+    monto = ID("monto");
+    tasa = ID("tasa");
+    plazo = ID("plazo");
+ 
+
+    if (monto.value == "" || monto.value < 1) {
+        alert("El monto a prestar no puede estar vario y debe ser mayor a uno.");
+        monto.focus();
+    }else if(tasa.value == "" || tasa.value < 0 || tasa.value >= 100){
+        alert("La tasa de interes no puede estar vacia, debe ser mayor a cero y menor a 100.");
+        tasa.focus();
+    }else if(plazo.value == "" || plazo.value  < 1){
+        alert("EL plazo no puede estar vario y debe ser mayor a uno.");
+        plazo.focus();
+    }else{
+        monto = parseFloat(monto.value.replace(/,/g, ""));
+        tasa = parseFloat(tasa.value / 100);
+        plazo = parseFloat(plazo.value);
+        cuota = (monto*((((1+(tasa/12))**plazo)*(tasa/12))/(((1+(tasa/12))**plazo)-1)));
+        ID("cuotaMensual").value = VAR(cuota);
+    }
+}
+
+function generarTabla(){
+    //TODO: Validar que los valores no estén en blanco.
+   	if (ID("cuotaMensual").value == 0) {
+		alert("Debe calcular la cuota fija antes de crear la tabla de amortizacion.");
+        ID("monto").focus();
+    } else{
+    var cantidadPagos = parseInt(ID("plazo").value);
+    var fecha = new Date(ID("fecha").value);
+    crearTabla(cantidadPagos, fecha);    	
+    }
+}
+
+function crearTabla(cantidadPagos, fecha){
+    var tabla = ID("amortizacion");
+    var tableBody = ID("tableBody");
+    tableBody.innerHTML = ""; //limpia solo las filas dentro del tbody
+    tabla.style.display = "block"; //muestra la tabla
+    
+
+    for (var filas = 0; filas < cantidadPagos; filas++) {
+        
+        var tr = tableBody.insertRow(); //la nueva fila para la tabla
+        interes = (monto*(tasa/12));
+        capital = (cuota - interes);
+        balance = monto - capital;
+        monto = balance;
+                        
+        for (var columnas = 0; columnas <= 5; columnas++) {
+            var td = tr.insertCell(); //la nueva columna para la tabla
+            switch (columnas){
+                case 0:
+                    td.appendChild(document.createTextNode(filas + 1)); //agrega una celda dentro del td con el valor dentro del paréntesis                                        
+                    break;
+                case 1:
+                    fecha.setMonth(fecha.getMonth() + 1);
+                    td.appendChild(document.createTextNode(fecha.toISOString().slice(0, 10))); //fecha.toISOString le da formato a la fecha
+                    td.style = "text-align:center;"
+                    break;
+                case 2:
+                    td.appendChild(document.createTextNode(VAR(cuota)));
+                    td.style = "text-align:center;"
+                    //TODO: Dar formato de currency a cuota
+
+                    break;
+                case 3:
+                    td.appendChild(document.createTextNode(VAR(interes)));
+                    td.style = "text-align:center;"
+                    //TODO: Dar formato de currency a interes
+                    break;
+                case 4:
+                     td.appendChild(document.createTextNode(VAR(capital)));
+                     td.style = "text-align:center;"
+                    //TODO: Dar formato de currency a capital
+                    break;
+                case 5:
+                    td.appendChild(document.createTextNode(VAR(balance))); //para que tenga las comas y 2 valores despues del punto
+                    td.style = "text-align:center;"
+                    break;
+            }
+            //td.style = 'class = "row"'; //Para ver el borde de las columnas y celdas      
+            tableBody.appendChild(tr);
+        }
+    }
+    calcularCuota();
+}
+
+function ID(id){
+    return document.getElementById(id);
+}
+
+
+function VAR(variable){
+    return Intl.NumberFormat("en-US",{
+            style: 'currency',
+            currency: 'USD',
+            minimumFractionDigits: 2,
+         }).format(variable);
+}
+
+$(document).ready(function(){
+	$(".dinero").mask("#,##0.00", {reverse:true});
+    $("#plazo").mask("#");
+    $("#tasa").mask("#.9", {reverse:true});
+});
+
+function inicio(){
+
+    ID("monto").focus();
+
+    var date = new Date();
+    var day = date.getDate();
+    var month = date.getMonth() + 1;
+    var year = date.getFullYear();
+
+    if (month < 10){
+        month = "0" + month;
+    } 
+    if (day < 10){
+        day = "0" + day;
+    }
+
+    var today = year + "-" + month + "-" + day;  
+    ID("fecha").value = today;
+}
+    </script>
+
+    <footer class = "footer">
+        <div class="card-footer text-muted">
+            Brayan N. Reyes - 2020 - Diplomado HTML,CSS & JS - UTECO
+        </div>
+    </footer>
+</body>
+
+</html>
